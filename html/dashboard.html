@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo" aria-hidden="true">
+                <!-- Icone inspirado na tesoura/folha da logo -->
+                <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                    <path d="M16 18C22 8 34 8 40 18" stroke="#dfe3ea" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M24 22C28 12 40 12 44 22" stroke="#25b96a" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="24" cy="42" r="7" stroke="#dfe3ea" stroke-width="3"/>
+                    <circle cx="40" cy="42" r="7" stroke="#25b96a" stroke-width="3"/>
+                    <path d="M28 36L36 28" stroke="#dfe3ea" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M28 28L36 36" stroke="#25b96a" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div>
+                <div class="brand-name">BARBER<span>FLY</span></div>
+                <small>SaaS para barbearias</small>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a class="active" href="dashboard.html">Dashboard</a>
+            <a href="agenda.html">Agenda</a>
+            <a href="clientes.html">Clientes</a>
+            <a href="servicos.html">Servicos</a>
+            <a href="#" id="navEquipe">Equipe</a>
+            <a href="financeiro.html">Financeiro</a>
+        </nav>
+
+        <div class="sidebar-card">
+            <p>Dashboard principal</p>
+            <strong>Resumo do dia</strong>
+            <button class="secondary-button" type="button" id="atualizarDashboardSide">Atualizar dados</button>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menu">☰</button>
+            <div class="topbar-left">
+                <span class="topbar-label">Resumo do dia</span>
+                <div class="topbar-user">
+                    <h1 id="nomeBarbeiro" class="topbar-name">Barbeiro</h1>
+                    <p id="nomeBarbearia" class="topbar-shop">Barbearia</p>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <a class="primary-button" href="agenda.html">Novo agendamento</a>
+                <button class="ghost-button" type="button" id="atualizarDashboard">Atualizar</button>
+                <button class="ghost-button" type="button" id="logoutBtn">Sair</button>
+            </div>
+        </header>
+
+        <p id="erroDashboard" class="error-state is-hidden"></p>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <h3>Faturamento de hoje</h3>
+                <strong id="faturamentoHoje">R$ 0,00</strong>
+                <span id="faturamentoMeta" class="loading-state">Carregando...</span>
+            </article>
+            <article class="stat-card">
+                <h3>Atendimentos hoje</h3>
+                <strong id="quantidadeHoje">0</strong>
+                <span id="quantidadeMeta" class="loading-state">Carregando...</span>
+            </article>
+            <article class="stat-card">
+                <h3>Proximo atendimento</h3>
+                <strong id="proximoHorario">--:--</strong>
+                <span id="proximoCliente" class="loading-state">Carregando...</span>
+            </article>
+        </section>
+
+        <section class="panel" id="proximoCard">
+            <header>
+                <h2>Proximo atendimento</h2>
+                <span class="loading-state" id="proximoStatus">Carregando...</span>
+            </header>
+            <div class="next-appointment">
+                <div>
+                    <strong id="proximoNome">--</strong>
+                    <span id="proximoInfo">--</span>
+                </div>
+                <button class="primary-button is-hidden" type="button" id="concluirProximo">Concluir</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header>
+                <h2>Agenda de hoje</h2>
+                <span class="loading-state" id="agendaStatus">Carregando...</span>
+            </header>
+            <p id="agendaMensagem" class="empty-state"></p>
+            <ul class="list" id="agendaHoje"></ul>
+        </section>
+    </main>
+
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <script src="api-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

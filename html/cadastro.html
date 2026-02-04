@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Cadastro</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="login-page">
+        <section class="login-card">
+            <div>
+                <h1>Criar conta</h1>
+                <p>Configure seu acesso rapido ao Barberfly.</p>
+            </div>
+
+            <form id="formCadastro" class="login-form">
+                <label class="login-label" for="nome">Nome</label>
+                <input class="login-input" type="text" id="nome" name="nome" placeholder="Seu nome" required>
+
+                <label class="login-label" for="email">Email</label>
+                <input class="login-input" type="email" id="email" name="email" placeholder="voce@email.com" required>
+
+                <label class="login-label" for="senha">Senha</label>
+                <input class="login-input" type="password" id="senha" name="senha" placeholder="Crie uma senha" required>
+
+                <label class="login-label" for="tipo">Tipo de conta</label>
+                <select class="login-input" id="tipo" name="tipo" required>
+                    <option value="INDIVIDUAL">Barbeiro individual</option>
+                    <option value="EMPRESA">Dono de barbearia</option>
+                </select>
+
+                <button class="login-primary" type="submit">Criar conta</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="login.html">Ja tenho conta</a>
+            </div>
+            <p id="erro" class="error-state"></p>
+        </section>
+    </main>
+
+    <script src="api-config.js"></script>
+    <script>
+        const formCadastro = document.getElementById("formCadastro");
+        const erroEl = document.getElementById("erro");
+
+        formCadastro.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            erroEl.textContent = "";
+
+            const payload = {
+                nome: document.getElementById("nome").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                senha: document.getElementById("senha").value.trim(),
+                tipo: document.getElementById("tipo").value
+            };
+
+            try {
+                const response = await fetch(`${window.BARBERFLY_API_BASE}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const mensagem = await response.text();
+                    throw new Error(mensagem || "Falha ao cadastrar");
+                }
+                const data = await response.json();
+                localStorage.setItem("barberfly_user", JSON.stringify(data));
+                localStorage.setItem("barberfly_token", data.token || "");
+                window.location.href = "dashboard.html";
+            } catch (err) {
+                erroEl.textContent = err && err.message ? err.message : "Nao foi possivel criar a conta.";
+            }
+        });
+    </script>
+</body>
+</html>
