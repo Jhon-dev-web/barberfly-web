@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Servicos</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="page">
+        <section class="card">
+            <header class="card-header">
+                <div class="card-header-main">
+                    <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menu">☰</button>
+                    <div>
+                        <h1>Servicos</h1>
+                        <p>Cadastre e consulte os servicos oferecidos.</p>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a class="ghost-button" href="dashboard.html">Dashboard</a>
+                    <a class="ghost-button" href="agenda.html">Voltar</a>
+                </div>
+            </header>
+
+            <form id="formServico" class="form-grid">
+                <label class="field">
+                    <span>Nome</span>
+                    <input class="input" type="text" id="nome" placeholder="Ex: Corte" required>
+                </label>
+                <label class="field">
+                    <span>Descricao (opcional)</span>
+                    <input class="input" type="text" id="descricao">
+                </label>
+                <label class="field">
+                    <span>Duracao (min)</span>
+                    <input class="input" type="number" id="duracaoMin" min="5" required>
+                </label>
+                <label class="field">
+                    <span>Preco</span>
+                    <input class="input" type="number" id="preco" step="0.01" min="0.01" required>
+                </label>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Salvar servico</button>
+                    <button class="ghost-button" type="reset">Limpar</button>
+                </div>
+            </form>
+
+            <p id="sucesso" class="empty-state"></p>
+            <p id="erro" class="error-state"></p>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Duracao</th>
+                        <th>Preco</th>
+                        <th>Status</th>
+                        <th>Acoes</th>
+                    </tr>
+                </thead>
+                <tbody id="listaServicos"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="servicos.html">Servicos</a>
+        <a href="financeiro.html">Financeiro</a>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <div id="modalServico" class="modal-overlay is-hidden">
+        <section class="modal-card">
+            <header>
+                <h2>Editar servico</h2>
+                <button class="ghost-button" type="button" id="fecharModal">Fechar</button>
+            </header>
+            <form id="formServicoEdicao" class="modal-form">
+                <input type="hidden" id="servicoId">
+                <div class="settings-field">
+                    <label class="settings-label" for="nomeEdit">Nome</label>
+                    <input class="settings-input" type="text" id="nomeEdit" required>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="descricaoEdit">Descricao (opcional)</label>
+                    <input class="settings-input" type="text" id="descricaoEdit">
+                </div>
+                <div class="modal-grid">
+                    <div class="settings-field">
+                        <label class="settings-label" for="duracaoEdit">Duracao (min)</label>
+                        <input class="settings-input" type="number" id="duracaoEdit" min="5" required>
+                    </div>
+                    <div class="settings-field">
+                        <label class="settings-label" for="precoEdit">Preco</label>
+                        <input class="settings-input" type="number" id="precoEdit" step="0.01" min="0.01" required>
+                    </div>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="ativoEdit">Ativo</label>
+                    <select class="settings-select" id="ativoEdit">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+                <div class="settings-actions">
+                    <button class="primary-button" type="submit">Salvar alteracoes</button>
+                    <button class="ghost-button" type="reset">Limpar</button>
+                </div>
+            </form>
+            <p id="erroModal" class="error-state"></p>
+        </section>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/servicos.js"></script>
+</body>
+</html>

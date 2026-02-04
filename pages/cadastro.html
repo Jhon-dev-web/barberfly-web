@@ -34,46 +34,13 @@
             </form>
 
             <div class="login-footer">
-                <a href="login.html">Ja tenho conta</a>
+                <a href="../index.html">Ja tenho conta</a>
             </div>
             <p id="erro" class="error-state"></p>
         </section>
     </main>
 
-    <script src="api-config.js"></script>
-    <script>
-        const formCadastro = document.getElementById("formCadastro");
-        const erroEl = document.getElementById("erro");
-
-        formCadastro.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            erroEl.textContent = "";
-
-            const payload = {
-                nome: document.getElementById("nome").value.trim(),
-                email: document.getElementById("email").value.trim(),
-                senha: document.getElementById("senha").value.trim(),
-                tipo: document.getElementById("tipo").value
-            };
-
-            try {
-                const response = await fetch(`${window.BARBERFLY_API_BASE}/auth/register`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    const mensagem = await response.text();
-                    throw new Error(mensagem || "Falha ao cadastrar");
-                }
-                const data = await response.json();
-                localStorage.setItem("barberfly_user", JSON.stringify(data));
-                localStorage.setItem("barberfly_token", data.token || "");
-                window.location.href = "dashboard.html";
-            } catch (err) {
-                erroEl.textContent = err && err.message ? err.message : "Nao foi possivel criar a conta.";
-            }
-        });
-    </script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cadastro.js"></script>
 </body>
 </html>

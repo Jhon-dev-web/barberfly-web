@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Agenda do dia</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="page">
+        <section class="card">
+            <header class="card-header">
+                <div class="card-header-main">
+                    <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menu">☰</button>
+                    <div>
+                        <h1>Agenda do dia</h1>
+                        <p id="dataAtual">Carregando data...</p>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a class="ghost-button" href="dashboard.html">Dashboard</a>
+                    <a class="ghost-button" href="clientes.html">Clientes</a>
+                    <a class="ghost-button" href="servicos.html">Servicos</a>
+                    <a class="ghost-button" href="financeiro.html">Ver financeiro</a>
+                </div>
+            </header>
+
+            <div class="filters">
+                <label class="field">
+                    <span>Data</span>
+                    <input class="input" type="date" id="data">
+                </label>
+                <div class="toggle-group">
+                    <button class="ghost-button is-active" type="button" id="toggleDia">Dia</button>
+                    <button class="ghost-button" type="button" id="toggleSemana">Semana</button>
+                </div>
+                <button class="primary-button" id="carregar">Carregar</button>
+            </div>
+
+            <div id="diaView">
+                <ul id="lista" class="list"></ul>
+                <p id="vazio" class="empty-state">Nenhum agendamento para esta data.</p>
+            </div>
+
+            <div id="semanaView" class="week-view is-hidden"></div>
+            <p id="sucesso" class="empty-state"></p>
+            <p id="erro" class="error-state"></p>
+        </section>
+    </main>
+
+    <button class="primary-button fixed-action" id="novoAgendamento">+ Novo Agendamento</button>
+
+    <div id="modalAgendamento" class="modal-overlay is-hidden">
+        <section class="modal-card">
+            <header>
+                <h2>Novo agendamento</h2>
+                <button class="ghost-button" type="button" id="fecharModal">Fechar</button>
+            </header>
+
+            <form id="formAgendamento" class="modal-form">
+                <div class="settings-field">
+                    <label class="settings-label" for="clienteSelect">Cliente</label>
+                    <select class="settings-select" id="clienteSelect" required>
+                        <option value="">Carregando clientes...</option>
+                    </select>
+                </div>
+                <div class="settings-field is-hidden" id="novoClienteCampos">
+                    <label class="settings-label">Novo cliente</label>
+                    <input class="settings-input" type="text" id="novoClienteNome" placeholder="Nome do cliente">
+                    <input class="settings-input" type="text" id="novoClienteTelefone" placeholder="Telefone do cliente">
+                    <button class="ghost-button" type="button" id="salvarNovoCliente">Salvar cliente</button>
+                    <p id="erroNovoCliente" class="error-state"></p>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="servicoSelect">Servico</label>
+                    <select class="settings-select" id="servicoSelect" required>
+                        <option value="">Carregando servicos...</option>
+                    </select>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="barbeiroSelect">Barbeiro</label>
+                    <select class="settings-select" id="barbeiroSelect">
+                        <option value="">Nao informado</option>
+                    </select>
+                </div>
+                <div class="modal-grid">
+                    <div class="settings-field">
+                        <label class="settings-label" for="dataForm">Data</label>
+                        <input class="settings-input" type="date" id="dataForm" name="data" required>
+                    </div>
+                    <div class="settings-field">
+                        <label class="settings-label" for="horaInicio">Hora inicio</label>
+                        <input class="settings-input" type="time" id="horaInicio" name="horaInicio" required>
+                    </div>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="horaFim">Hora fim</label>
+                    <input class="settings-input" type="time" id="horaFim" name="horaFim">
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="observacoes">Observacoes</label>
+                    <textarea class="settings-input modal-textarea" id="observacoes" name="observacoes"></textarea>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="primary-button" type="submit">Salvar agendamento</button>
+                    <button class="ghost-button" type="reset">Limpar</button>
+                </div>
+            </form>
+            <p id="sucessoModal" class="empty-state"></p>
+            <p id="erroModal" class="error-state"></p>
+        </section>
+    </div>
+
+    <div id="modalConclusao" class="modal-overlay is-hidden">
+        <section class="modal-card">
+            <header>
+                <h2>Concluir atendimento</h2>
+                <button class="ghost-button" type="button" id="fecharConclusao">Fechar</button>
+            </header>
+
+            <form id="formConclusao" class="modal-form">
+                <input type="hidden" id="agendamentoId" name="agendamentoId">
+                <div class="settings-field">
+                    <label class="settings-label">Atendimento</label>
+                    <div class="settings-input" id="resumoConclusao">Carregando...</div>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="precoFinal">Preco final</label>
+                    <input class="settings-input" type="number" id="precoFinal" name="precoFinal" step="0.01" min="0.01" required>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="obsConclusao">Observacoes</label>
+                    <textarea class="settings-input modal-textarea" id="obsConclusao" name="observacoes"></textarea>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="primary-button" type="submit">Concluir</button>
+                </div>
+            </form>
+            <p id="sucessoConclusao" class="empty-state"></p>
+            <p id="erroConclusao" class="error-state"></p>
+        </section>
+    </div>
+
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="servicos.html">Servicos</a>
+        <a href="financeiro.html">Financeiro</a>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/date-utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/agenda.js"></script>
+</body>
+</html>

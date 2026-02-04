@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Clientes</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="page">
+        <section class="card">
+            <header class="card-header">
+                <div class="card-header-main">
+                    <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menu">☰</button>
+                    <div>
+                        <h1>Clientes</h1>
+                        <p>Cadastre e acompanhe seus clientes.</p>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a class="ghost-button" href="dashboard.html">Dashboard</a>
+                    <a class="ghost-button" href="agenda.html">Voltar</a>
+                </div>
+            </header>
+
+            <form id="formCliente" class="form-grid">
+                <label class="field">
+                    <span>Nome</span>
+                    <input class="input" type="text" id="nome" required>
+                </label>
+                <label class="field">
+                    <span>Telefone</span>
+                    <input class="input" type="text" id="telefone" required>
+                </label>
+                <label class="field">
+                    <span>Email (opcional)</span>
+                    <input class="input" type="email" id="email">
+                </label>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Salvar cliente</button>
+                    <button class="ghost-button" type="reset">Limpar</button>
+                </div>
+            </form>
+
+            <p id="sucesso" class="empty-state"></p>
+            <p id="erro" class="error-state"></p>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="listaClientes"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="servicos.html">Servicos</a>
+        <a href="financeiro.html">Financeiro</a>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/clientes.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const AUTH_API_URL = window.BARBERFLY_API_BASE;
+const AUTH_API_URL = API_BASE_URL;
 
 function getStoredUser() {
     try {
@@ -39,19 +39,19 @@ async function validateAuth() {
 
 function requireAuth() {
     const pagina = (window.location.pathname || "").toLowerCase();
-    if (pagina.includes("login.html") || pagina.includes("cadastro.html")) {
+    if (pagina.endsWith("/index.html") || pagina.endsWith("/") || pagina.includes("cadastro.html")) {
         return;
     }
     const user = getStoredUser();
     const token = getStoredToken();
     if (!user || !token) {
-        window.location.href = "login.html";
+        window.location.href = "../index.html";
         return;
     }
     validateAuth().then((ok) => {
         if (!ok) {
             clearAuth();
-            window.location.href = "login.html";
+            window.location.href = "../index.html";
         }
     });
 }
@@ -63,7 +63,7 @@ function attachLogout() {
     }
     btn.addEventListener("click", () => {
         clearAuth();
-        window.location.href = "login.html";
+        window.location.href = "../index.html";
     });
 }
 
@@ -76,7 +76,7 @@ function authFetch(url, options = {}) {
     return fetch(url, Object.assign({}, options, { headers })).then((response) => {
         if (response.status === 401) {
             clearAuth();
-            window.location.href = "login.html";
+            window.location.href = "../index.html";
         }
         return response;
     });

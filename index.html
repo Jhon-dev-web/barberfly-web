@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberfly | Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="login-page">
+        <section class="login-card">
+            <div>
+                <h1>Entrar no Barberfly</h1>
+                <p>Acesse sua barbearia com rapidez e seguranca.</p>
+            </div>
+
+            <form id="formLogin" class="login-form">
+                <label class="login-label" for="email">Email</label>
+                <input class="login-input" type="email" id="email" name="email" placeholder="voce@email.com" required>
+
+                <label class="login-label" for="senha">Senha</label>
+                <input class="login-input" type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+
+                <button class="login-primary" type="submit">Entrar</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="pages/cadastro.html">Criar conta</a>
+            </div>
+            <p id="erro" class="error-state"></p>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

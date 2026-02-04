@@ -1,5 +1,5 @@
 /* Configuracao da API */
-const API_URL = window.BARBERFLY_API_BASE;
+const API_URL = API_BASE_URL;
 
 /* Elementos principais */
 const faturamentoHojeEl = document.getElementById("faturamentoHoje");
@@ -21,8 +21,6 @@ const atualizarDashboardSideEl = document.getElementById("atualizarDashboardSide
 const nomeBarbeiroEl = document.getElementById("nomeBarbeiro");
 const nomeBarbeariaEl = document.getElementById("nomeBarbearia");
 const navEquipeEl = document.getElementById("navEquipe");
-const menuToggleEl = document.getElementById("menuToggle");
-const menuOverlayEl = document.getElementById("menuOverlay");
 
 /* Identidade do usuario */
 const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
@@ -57,18 +55,6 @@ function atualizarIdentidade() {
         nomeBarbeariaEl.textContent = "";
         nomeBarbeariaEl.classList.add("is-hidden");
     }
-}
-
-function configurarMenuMobile() {
-    if (!menuToggleEl || !menuOverlayEl) {
-        return;
-    }
-    menuToggleEl.addEventListener("click", () => {
-        document.body.classList.toggle("menu-open");
-    });
-    menuOverlayEl.addEventListener("click", () => {
-        document.body.classList.remove("menu-open");
-    });
 }
 
 function hojeIso() {
@@ -299,5 +285,4 @@ atualizarDashboardEl.addEventListener("click", carregarDashboard);
 atualizarDashboardSideEl.addEventListener("click", carregarDashboard);
 aplicarPlano();
 atualizarIdentidade();
-configurarMenuMobile();
 carregarDashboard();
