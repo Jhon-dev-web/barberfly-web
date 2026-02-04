@@ -220,11 +220,7 @@ async function carregarAgendaSemana() {
 
 async function carregarClientes() {
     try {
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/clientes`);
-        if (!response.ok) {
-            throw new Error("Falha ao carregar clientes");
-        }
-        const clientes = await response.json();
+        const clientes = await window.BARBERFLY_AGENDAMENTO.fetchClientes();
         popularSelectClientes(Array.isArray(clientes) ? clientes : []);
     } catch (err) {
         clienteSelect.innerHTML = "<option value=''>Sem clientes cadastrados</option>";
@@ -233,11 +229,7 @@ async function carregarClientes() {
 
 async function carregarServicos() {
     try {
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/servicos`);
-        if (!response.ok) {
-            throw new Error("Falha ao carregar servicos");
-        }
-        const servicos = await response.json();
+        const servicos = await window.BARBERFLY_AGENDAMENTO.fetchServicos();
         popularSelectServicos(Array.isArray(servicos) ? servicos : []);
     } catch (err) {
         servicoSelect.innerHTML = "<option value=''>Sem servicos cadastrados</option>";
@@ -353,29 +345,22 @@ async function salvarAgendamento(event) {
     const dataHoraFim = horaFim ? `${data}T${horaFim}:00` : null;
 
     try {
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/agendamentos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                clienteId,
-                servicoId,
-                barbeiro,
-                dataHoraInicio,
-                dataHoraFim,
-                observacoes
-            })
+        await window.BARBERFLY_AGENDAMENTO.criarAgendamento({
+            clienteId,
+            servicoId,
+            barbeiro,
+            dataHoraInicio,
+            dataHoraFim,
+            observacoes
         });
-        if (!response.ok) {
-            const mensagem = await response.text();
-            if (response.status === 409) {
-                throw new Error("Conflito de horario para este barbeiro.");
-            }
-            throw new Error(mensagem || "Falha ao salvar");
-        }
         fecharFormularioAgendamento();
         await carregarAgendamentos();
         sucessoEl.textContent = "Agendamento criado com sucesso.";
     } catch (err) {
+        if (err && err.status === 409) {
+            erroModal.textContent = "Conflito de horario para este barbeiro.";
+            return;
+        }
         erroModal.textContent = err && err.message ? err.message : "Nao foi possivel salvar.";
     }
 }
@@ -506,16 +491,7 @@ salvarNovoClienteBtn.addEventListener("click", async () => {
         return;
     }
     try {
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/clientes`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, telefone })
-        });
-        if (!response.ok) {
-            const mensagem = await response.text();
-            throw new Error(mensagem || "Falha ao criar cliente.");
-        }
-        const cliente = await response.json();
+        const cliente = await window.BARBERFLY_AGENDAMENTO.criarCliente({ nome, telefone });
         if (cliente && cliente.id) {
             const option = document.createElement("option");
             option.value = cliente.id;

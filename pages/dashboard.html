@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="topbar-actions">
-                <a class="primary-button" href="agenda.html">Novo agendamento</a>
+                <button class="primary-button" type="button" id="novoAgendamentoDashboard">Novo agendamento</button>
                 <button class="ghost-button" type="button" id="atualizarDashboard">Atualizar</button>
                 <button class="ghost-button" type="button" id="logoutBtn">Sair</button>
             </div>
@@ -105,9 +105,62 @@
 
     <div class="menu-overlay" id="menuOverlay"></div>
 
+    <div id="modalAgendamentoDashboard" class="modal-overlay is-hidden">
+        <section class="modal-card">
+            <header>
+                <h2>Novo agendamento</h2>
+                <button class="ghost-button" type="button" id="fecharModalDashboard">Fechar</button>
+            </header>
+
+            <form id="formAgendamentoDashboard" class="modal-form">
+                <div class="settings-field">
+                    <label class="settings-label" for="clienteSelectDashboard">Cliente</label>
+                    <select class="settings-select" id="clienteSelectDashboard" required>
+                        <option value="">Carregando clientes...</option>
+                    </select>
+                </div>
+                <div class="settings-field is-hidden" id="novoClienteCamposDashboard">
+                    <label class="settings-label">Novo cliente</label>
+                    <input class="settings-input" type="text" id="novoClienteNomeDashboard" placeholder="Nome do cliente">
+                    <input class="settings-input" type="text" id="novoClienteTelefoneDashboard" placeholder="Telefone do cliente">
+                    <button class="ghost-button" type="button" id="salvarNovoClienteDashboard">Salvar cliente</button>
+                    <p id="erroNovoClienteDashboard" class="error-state"></p>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="servicoSelectDashboard">Servico</label>
+                    <select class="settings-select" id="servicoSelectDashboard" required>
+                        <option value="">Carregando servicos...</option>
+                    </select>
+                </div>
+                <div class="modal-grid">
+                    <div class="settings-field">
+                        <label class="settings-label" for="dataDashboard">Data</label>
+                        <input class="settings-input" type="date" id="dataDashboard" name="data" required>
+                    </div>
+                    <div class="settings-field">
+                        <label class="settings-label" for="horaInicioDashboard">Hora inicio</label>
+                        <input class="settings-input" type="time" id="horaInicioDashboard" name="horaInicio" required>
+                    </div>
+                </div>
+                <div class="settings-field">
+                    <label class="settings-label" for="observacoesDashboard">Observacoes</label>
+                    <textarea class="settings-input modal-textarea" id="observacoesDashboard" name="observacoes"></textarea>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="primary-button" type="submit">Salvar agendamento</button>
+                    <button class="ghost-button" type="reset">Limpar</button>
+                </div>
+            </form>
+            <p id="sucessoModalDashboard" class="empty-state"></p>
+            <p id="erroModalDashboard" class="error-state"></p>
+        </section>
+    </div>
+
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/menu.js"></script>
+    <script src="../js/agendamento-helpers.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>
 </html>

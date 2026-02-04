@@ -21,12 +21,29 @@ const atualizarDashboardSideEl = document.getElementById("atualizarDashboardSide
 const nomeBarbeiroEl = document.getElementById("nomeBarbeiro");
 const nomeBarbeariaEl = document.getElementById("nomeBarbearia");
 const navEquipeEl = document.getElementById("navEquipe");
+const novoAgendamentoDashboardEl = document.getElementById("novoAgendamentoDashboard");
+const modalAgendamentoDashboard = document.getElementById("modalAgendamentoDashboard");
+const formAgendamentoDashboard = document.getElementById("formAgendamentoDashboard");
+const fecharModalDashboardBtn = document.getElementById("fecharModalDashboard");
+const sucessoModalDashboard = document.getElementById("sucessoModalDashboard");
+const erroModalDashboard = document.getElementById("erroModalDashboard");
+const clienteSelectDashboard = document.getElementById("clienteSelectDashboard");
+const servicoSelectDashboard = document.getElementById("servicoSelectDashboard");
+const novoClienteCamposDashboard = document.getElementById("novoClienteCamposDashboard");
+const novoClienteNomeDashboard = document.getElementById("novoClienteNomeDashboard");
+const novoClienteTelefoneDashboard = document.getElementById("novoClienteTelefoneDashboard");
+const salvarNovoClienteDashboard = document.getElementById("salvarNovoClienteDashboard");
+const erroNovoClienteDashboard = document.getElementById("erroNovoClienteDashboard");
+const dataDashboard = document.getElementById("dataDashboard");
+const horaInicioDashboard = document.getElementById("horaInicioDashboard");
+const observacoesDashboard = document.getElementById("observacoesDashboard");
 
 /* Identidade do usuario */
 const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
 const PLANO_ATUAL = usuarioLogado && usuarioLogado.tipo ? usuarioLogado.tipo : "INDIVIDUAL";
 const NOME_BARBEIRO = usuarioLogado && usuarioLogado.nome ? usuarioLogado.nome : "Barbeiro";
 const NOME_BARBEARIA = "";
+const BARBEIRO_PADRAO = usuarioLogado && usuarioLogado.nome ? usuarioLogado.nome : "Barbeiro";
 
 function aplicarPlano() {
     const plano = (PLANO_ATUAL || "INDIVIDUAL").toUpperCase();
@@ -80,6 +97,20 @@ function formatarHora(dataHora) {
     return data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
+function getTodayIso() {
+    const now = new Date();
+    const mes = String(now.getMonth() + 1).padStart(2, "0");
+    const dia = String(now.getDate()).padStart(2, "0");
+    return `${now.getFullYear()}-${mes}-${dia}`;
+}
+
+function getCurrentTime() {
+    const now = new Date();
+    const hora = String(now.getHours()).padStart(2, "0");
+    const minuto = String(now.getMinutes()).padStart(2, "0");
+    return `${hora}:${minuto}`;
+}
+
 function definirEstadoCarregando() {
     erroDashboardEl.classList.add("is-hidden");
     erroDashboardEl.textContent = "";
@@ -124,6 +155,159 @@ async function carregarAgendamentos() {
         throw new Error("Agenda indisponivel");
     }
     return response.json();
+}
+
+function abrirQuickAgendamento() {
+    sucessoModalDashboard.textContent = "";
+    erroModalDashboard.textContent = "";
+    formAgendamentoDashboard.reset();
+    erroNovoClienteDashboard.textContent = "";
+    novoClienteCamposDashboard.classList.add("is-hidden");
+    dataDashboard.value = getTodayIso();
+    horaInicioDashboard.value = getCurrentTime();
+    modalAgendamentoDashboard.classList.remove("is-hidden");
+    carregarClientesDashboard();
+    carregarServicosDashboard();
+}
+
+function fecharQuickAgendamento() {
+    modalAgendamentoDashboard.classList.add("is-hidden");
+}
+
+function popularSelectClientesDashboard(clientes) {
+    clienteSelectDashboard.innerHTML = "";
+    if (!clientes.length) {
+        clienteSelectDashboard.innerHTML = "<option value=''>Sem clientes cadastrados</option>";
+        return;
+    }
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Selecione um cliente";
+    clienteSelectDashboard.appendChild(placeholder);
+    const novoOption = document.createElement("option");
+    novoOption.value = "__novo__";
+    novoOption.textContent = "+ Novo cliente";
+    clienteSelectDashboard.appendChild(novoOption);
+    clientes.forEach((cliente) => {
+        const option = document.createElement("option");
+        option.value = cliente.id;
+        option.textContent = cliente.nome || "Cliente";
+        clienteSelectDashboard.appendChild(option);
+    });
+}
+
+function popularSelectServicosDashboard(servicos) {
+    servicoSelectDashboard.innerHTML = "";
+    const ativos = servicos.filter((servico) => servico && servico.ativo);
+    if (!ativos.length) {
+        servicoSelectDashboard.innerHTML = "<option value=''>Sem servicos ativos</option>";
+        return;
+    }
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Selecione um servico";
+    servicoSelectDashboard.appendChild(placeholder);
+    ativos.forEach((servico) => {
+        const option = document.createElement("option");
+        option.value = servico.id;
+        option.textContent = servico.nome || "Servico";
+        servicoSelectDashboard.appendChild(option);
+    });
+}
+
+async function carregarClientesDashboard() {
+    try {
+        const clientes = await window.BARBERFLY_AGENDAMENTO.fetchClientes();
+        popularSelectClientesDashboard(Array.isArray(clientes) ? clientes : []);
+    } catch (err) {
+        clienteSelectDashboard.innerHTML = "<option value=''>Sem clientes cadastrados</option>";
+    }
+}
+
+async function carregarServicosDashboard() {
+    try {
+        const servicos = await window.BARBERFLY_AGENDAMENTO.fetchServicos();
+        popularSelectServicosDashboard(Array.isArray(servicos) ? servicos : []);
+    } catch (err) {
+        servicoSelectDashboard.innerHTML = "<option value=''>Sem servicos cadastrados</option>";
+    }
+}
+
+async function salvarNovoClienteDashboardClick() {
+    erroNovoClienteDashboard.textContent = "";
+    const nome = String(novoClienteNomeDashboard.value || "").trim();
+    const telefone = String(novoClienteTelefoneDashboard.value || "").trim();
+    if (!nome || !telefone) {
+        erroNovoClienteDashboard.textContent = "Informe nome e telefone.";
+        return;
+    }
+    try {
+        const cliente = await window.BARBERFLY_AGENDAMENTO.criarCliente({ nome, telefone });
+        if (cliente && cliente.id) {
+            const option = document.createElement("option");
+            option.value = cliente.id;
+            option.textContent = cliente.nome || nome;
+            clienteSelectDashboard.appendChild(option);
+            clienteSelectDashboard.value = String(cliente.id);
+        }
+        await carregarClientesDashboard();
+        novoClienteCamposDashboard.classList.add("is-hidden");
+        novoClienteNomeDashboard.value = "";
+        novoClienteTelefoneDashboard.value = "";
+    } catch (err) {
+        erroNovoClienteDashboard.textContent = err && err.message ? err.message : "Nao foi possivel salvar o cliente.";
+    }
+}
+
+async function salvarAgendamentoDashboard(event) {
+    event.preventDefault();
+    sucessoModalDashboard.textContent = "";
+    erroModalDashboard.textContent = "";
+
+    const clienteId = Number(clienteSelectDashboard.value) || null;
+    const servicoId = Number(servicoSelectDashboard.value) || null;
+    const data = dataDashboard.value;
+    const horaInicio = horaInicioDashboard.value;
+    const observacoes = observacoesDashboard.value || null;
+
+    if (clienteSelectDashboard.value === "__novo__") {
+        erroModalDashboard.textContent = "Salve o novo cliente antes de agendar.";
+        return;
+    }
+    if (!clienteId) {
+        erroModalDashboard.textContent = "Selecione um cliente.";
+        return;
+    }
+    if (!servicoId) {
+        erroModalDashboard.textContent = "Selecione um servico.";
+        return;
+    }
+    if (!data || !horaInicio) {
+        erroModalDashboard.textContent = "Informe data e hora.";
+        return;
+    }
+
+    const dataHoraInicio = `${data}T${horaInicio}:00`;
+
+    try {
+        await window.BARBERFLY_AGENDAMENTO.criarAgendamento({
+            clienteId,
+            servicoId,
+            barbeiro: BARBEIRO_PADRAO,
+            dataHoraInicio,
+            dataHoraFim: null,
+            observacoes
+        });
+        fecharQuickAgendamento();
+        await carregarDashboard();
+        sucessoModalDashboard.textContent = "Agendamento criado com sucesso.";
+    } catch (err) {
+        if (err && err.status === 409) {
+            erroModalDashboard.textContent = "Conflito de horario para este barbeiro.";
+            return;
+        }
+        erroModalDashboard.textContent = err && err.message ? err.message : "Nao foi possivel salvar.";
+    }
 }
 
 async function concluirAtendimento(agendamentoId, botao, precoFinal) {
@@ -283,6 +467,29 @@ async function carregarDashboard() {
 
 atualizarDashboardEl.addEventListener("click", carregarDashboard);
 atualizarDashboardSideEl.addEventListener("click", carregarDashboard);
+if (novoAgendamentoDashboardEl) {
+    novoAgendamentoDashboardEl.addEventListener("click", abrirQuickAgendamento);
+}
+if (fecharModalDashboardBtn) {
+    fecharModalDashboardBtn.addEventListener("click", fecharQuickAgendamento);
+}
+if (formAgendamentoDashboard) {
+    formAgendamentoDashboard.addEventListener("submit", salvarAgendamentoDashboard);
+}
+if (clienteSelectDashboard) {
+    clienteSelectDashboard.addEventListener("change", () => {
+        const selecionadoNovo = clienteSelectDashboard.value === "__novo__";
+        novoClienteCamposDashboard.classList.toggle("is-hidden", !selecionadoNovo);
+        if (!selecionadoNovo) {
+            erroNovoClienteDashboard.textContent = "";
+            novoClienteNomeDashboard.value = "";
+            novoClienteTelefoneDashboard.value = "";
+        }
+    });
+}
+if (salvarNovoClienteDashboard) {
+    salvarNovoClienteDashboard.addEventListener("click", salvarNovoClienteDashboardClick);
+}
 aplicarPlano();
 atualizarIdentidade();
 carregarDashboard();

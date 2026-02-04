@@ -394,6 +394,86 @@ a {
     display: none;
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 17, 21, 0.4);
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    z-index: 30;
+}
+
+.modal-card {
+    width: min(520px, 100%);
+    background: var(--surface);
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    display: grid;
+    gap: 16px;
+    box-shadow: 0 18px 40px rgba(15, 17, 21, 0.12);
+}
+
+.modal-card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-form {
+    display: grid;
+    gap: 12px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.modal-textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.settings-field {
+    display: grid;
+    gap: 8px;
+}
+
+.settings-label {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.settings-input,
+.settings-select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    background: #ffffff;
+}
+
+.settings-input:focus,
+.settings-select:focus {
+    outline: 2px solid rgba(37, 185, 106, 0.2);
+    border-color: var(--accent);
+}
+
+.settings-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.modal-overlay.is-hidden {
+    display: none;
+}
+
 @media (max-width: 980px) {
     .app {
         grid-template-columns: 1fr;
@@ -404,5 +484,9 @@ a {
     .list-item {
         grid-template-columns: 1fr;
         align-items: flex-start;
+    }
+
+    .modal-grid {
+        grid-template-columns: 1fr;
     }
 }
