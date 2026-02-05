@@ -1,21 +1,28 @@
 const formLogin = document.getElementById("formLogin");
-const erroEl = document.getElementById("erro");
+const erroEl = document.getElementById("login-error");
+
+function getFriendlyMessageByStatus(status) {
+    if (status === 401) {
+        return "Email ou senha inválidos.";
+    }
+    if (status === 400) {
+        return "Preencha os campos corretamente.";
+    }
+    return "";
+}
 
 async function extractErrorMessage(response) {
-    let text = "";
+    const clone = response.clone();
     try {
-        text = await response.text();
+        const data = await response.json();
+        return data.message || data.detail || data.error || data.title || "";
     } catch (err) {
-        return "";
-    }
-    if (!text) {
-        return "";
-    }
-    try {
-        const data = JSON.parse(text);
-        return data.message || data.error || data.mensagem || text;
-    } catch (err) {
-        return text;
+        try {
+            const text = await clone.text();
+            return text || "";
+        } catch (textErr) {
+            return "";
+        }
     }
 }
 
@@ -24,6 +31,7 @@ if (formLogin) {
         event.preventDefault();
         if (erroEl) {
             erroEl.textContent = "";
+            erroEl.hidden = true;
         }
 
         const payload = {
@@ -38,8 +46,12 @@ if (formLogin) {
                 body: JSON.stringify(payload)
             });
             if (!response.ok) {
+                const friendly = getFriendlyMessageByStatus(response.status);
+                if (friendly) {
+                    throw new Error(friendly);
+                }
                 const mensagem = await extractErrorMessage(response);
-                throw new Error(mensagem || "Não foi possível entrar. Tente novamente.");
+                throw new Error(mensagem || "Não foi possível concluir. Tente novamente.");
             }
             const data = await response.json();
             localStorage.setItem("barberfly_user", JSON.stringify(data));
@@ -49,7 +61,9 @@ if (formLogin) {
             if (!erroEl) {
                 return;
             }
-            erroEl.textContent = err && err.message ? err.message : "Não foi possível entrar. Tente novamente.";
+            const mensagem = err && err.message ? err.message : "Não foi possível concluir. Tente novamente.";
+            erroEl.textContent = mensagem;
+            erroEl.hidden = false;
         }
     });
 }
