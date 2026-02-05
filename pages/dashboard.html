@@ -31,15 +31,9 @@
             <a href="agenda.html">Agenda</a>
             <a href="clientes.html">Clientes</a>
             <a href="servicos.html">Servicos</a>
-            <a href="#" id="navEquipe">Equipe</a>
             <a href="financeiro.html">Financeiro</a>
         </nav>
 
-        <div class="sidebar-card">
-            <p>Dashboard principal</p>
-            <strong>Resumo do dia</strong>
-            <button class="secondary-button" type="button" id="atualizarDashboardSide">Atualizar dados</button>
-        </div>
     </aside>
 
     <main class="content">
@@ -79,26 +73,13 @@
             </article>
         </section>
 
-        <section class="panel" id="proximoCard">
-            <header>
-                <h2>Proximo atendimento</h2>
-                <span class="loading-state" id="proximoStatus">Carregando...</span>
-            </header>
-            <div class="next-appointment">
-                <div>
-                    <strong id="proximoNome">--</strong>
-                    <span id="proximoInfo">--</span>
-                </div>
-                <button class="primary-button is-hidden" type="button" id="concluirProximo">Concluir</button>
-            </div>
-        </section>
-
         <section class="panel">
             <header>
                 <h2>Agenda de hoje</h2>
                 <span class="loading-state" id="agendaStatus">Carregando...</span>
             </header>
             <p id="agendaMensagem" class="empty-state"></p>
+            <button class="ghost-button small-button is-hidden" type="button" id="novoAgendamentoAgenda">+ Novo agendamento</button>
             <ul class="list" id="agendaHoje"></ul>
         </section>
     </main>

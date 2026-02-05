@@ -22,6 +22,7 @@ const nomeBarbeiroEl = document.getElementById("nomeBarbeiro");
 const nomeBarbeariaEl = document.getElementById("nomeBarbearia");
 const navEquipeEl = document.getElementById("navEquipe");
 const novoAgendamentoDashboardEl = document.getElementById("novoAgendamentoDashboard");
+const novoAgendamentoAgendaEl = document.getElementById("novoAgendamentoAgenda");
 const modalAgendamentoDashboard = document.getElementById("modalAgendamentoDashboard");
 const formAgendamentoDashboard = document.getElementById("formAgendamentoDashboard");
 const fecharModalDashboardBtn = document.getElementById("fecharModalDashboard");
@@ -120,12 +121,23 @@ function definirEstadoCarregando() {
     proximoClienteEl.textContent = "Carregando...";
     faturamentoMetaEl.textContent = "Carregando...";
     quantidadeMetaEl.textContent = "Carregando...";
-    proximoStatusEl.textContent = "Carregando...";
-    proximoNomeEl.textContent = "--";
-    proximoInfoEl.textContent = "--";
-    concluirProximoEl.classList.add("is-hidden");
+    if (proximoStatusEl) {
+        proximoStatusEl.textContent = "Carregando...";
+    }
+    if (proximoNomeEl) {
+        proximoNomeEl.textContent = "--";
+    }
+    if (proximoInfoEl) {
+        proximoInfoEl.textContent = "--";
+    }
+    if (concluirProximoEl) {
+        concluirProximoEl.classList.add("is-hidden");
+    }
     agendaStatusEl.textContent = "Carregando...";
     agendaMensagemEl.textContent = "";
+    if (novoAgendamentoAgendaEl) {
+        novoAgendamentoAgendaEl.classList.add("is-hidden");
+    }
     agendaHojeEl.innerHTML = "";
 }
 
@@ -351,10 +363,18 @@ function atualizarProximo(agendamentos) {
     if (!Array.isArray(agendamentos) || agendamentos.length === 0) {
         proximoHorarioEl.textContent = "--:--";
         proximoClienteEl.textContent = "Sem atendimentos hoje";
-        proximoNomeEl.textContent = "Sem atendimentos";
-        proximoInfoEl.textContent = "Nenhum horario restante";
-        proximoStatusEl.textContent = "";
-        concluirProximoEl.classList.add("is-hidden");
+        if (proximoNomeEl) {
+            proximoNomeEl.textContent = "Sem atendimentos";
+        }
+        if (proximoInfoEl) {
+            proximoInfoEl.textContent = "Nenhum horario restante";
+        }
+        if (proximoStatusEl) {
+            proximoStatusEl.textContent = "";
+        }
+        if (concluirProximoEl) {
+            concluirProximoEl.classList.add("is-hidden");
+        }
         return;
     }
 
@@ -367,10 +387,18 @@ function atualizarProximo(agendamentos) {
     if (!proximo) {
         proximoHorarioEl.textContent = "--:--";
         proximoClienteEl.textContent = "Sem atendimentos pendentes";
-        proximoNomeEl.textContent = "Sem pendencias";
-        proximoInfoEl.textContent = "Agenda concluida";
-        proximoStatusEl.textContent = "";
-        concluirProximoEl.classList.add("is-hidden");
+        if (proximoNomeEl) {
+            proximoNomeEl.textContent = "Sem pendencias";
+        }
+        if (proximoInfoEl) {
+            proximoInfoEl.textContent = "Agenda concluida";
+        }
+        if (proximoStatusEl) {
+            proximoStatusEl.textContent = "";
+        }
+        if (concluirProximoEl) {
+            concluirProximoEl.classList.add("is-hidden");
+        }
         return;
     }
 
@@ -378,12 +406,20 @@ function atualizarProximo(agendamentos) {
     const servico = proximo.servico && proximo.servico.nome ? proximo.servico.nome : "Servico";
     proximoHorarioEl.textContent = formatarHora(proximo.dataHoraInicio);
     proximoClienteEl.textContent = cliente;
-    proximoNomeEl.textContent = cliente;
-    proximoInfoEl.textContent = `${formatarHora(proximo.dataHoraInicio)} • ${servico}`;
-    proximoStatusEl.textContent = "Pronto para concluir";
-    concluirProximoEl.classList.remove("is-hidden");
-    const precoBase = proximo.servico && proximo.servico.preco ? Number(proximo.servico.preco) : null;
-    concluirProximoEl.onclick = () => concluirAtendimento(proximo.id, concluirProximoEl, precoBase);
+    if (proximoNomeEl) {
+        proximoNomeEl.textContent = cliente;
+    }
+    if (proximoInfoEl) {
+        proximoInfoEl.textContent = `${formatarHora(proximo.dataHoraInicio)} • ${servico}`;
+    }
+    if (proximoStatusEl) {
+        proximoStatusEl.textContent = "Pronto para concluir";
+    }
+    if (concluirProximoEl) {
+        concluirProximoEl.classList.remove("is-hidden");
+        const precoBase = proximo.servico && proximo.servico.preco ? Number(proximo.servico.preco) : null;
+        concluirProximoEl.onclick = () => concluirAtendimento(proximo.id, concluirProximoEl, precoBase);
+    }
 }
 
 function atualizarAgenda(agendamentos) {
@@ -396,8 +432,14 @@ function atualizarAgenda(agendamentos) {
         : [];
 
     if (lista.length === 0) {
-        agendaMensagemEl.textContent = "Sem atendimentos agendados para hoje.";
+        agendaMensagemEl.textContent = "Nenhum atendimento agendado para hoje.";
+        if (novoAgendamentoAgendaEl) {
+            novoAgendamentoAgendaEl.classList.remove("is-hidden");
+        }
         return;
+    }
+    if (novoAgendamentoAgendaEl) {
+        novoAgendamentoAgendaEl.classList.add("is-hidden");
     }
 
     const ordenados = [...lista].sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio));
@@ -458,17 +500,27 @@ async function carregarDashboard() {
         erroDashboardEl.classList.remove("is-hidden");
         agendaMensagemEl.textContent = "Nao foi possivel carregar a agenda de hoje.";
         agendaStatusEl.textContent = "";
+        if (novoAgendamentoAgendaEl) {
+            novoAgendamentoAgendaEl.classList.add("is-hidden");
+        }
         faturamentoMetaEl.textContent = "Indisponivel";
         quantidadeMetaEl.textContent = "Indisponivel";
         proximoClienteEl.textContent = "Indisponivel";
-        proximoStatusEl.textContent = "";
+        if (proximoStatusEl) {
+            proximoStatusEl.textContent = "";
+        }
     }
 }
 
 atualizarDashboardEl.addEventListener("click", carregarDashboard);
-atualizarDashboardSideEl.addEventListener("click", carregarDashboard);
+if (atualizarDashboardSideEl) {
+    atualizarDashboardSideEl.addEventListener("click", carregarDashboard);
+}
 if (novoAgendamentoDashboardEl) {
     novoAgendamentoDashboardEl.addEventListener("click", abrirQuickAgendamento);
+}
+if (novoAgendamentoAgendaEl) {
+    novoAgendamentoAgendaEl.addEventListener("click", abrirQuickAgendamento);
 }
 if (fecharModalDashboardBtn) {
     fecharModalDashboardBtn.addEventListener("click", fecharQuickAgendamento);
