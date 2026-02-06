@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barberfly | Clientes</title>
+    <title>Barberfly | Equipe</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -13,31 +13,46 @@
                 <div class="card-header-main">
                     <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menu">☰</button>
                     <div>
-                        <h1>Clientes</h1>
-                        <p>Cadastre e acompanhe seus clientes.</p>
+                        <h1>Equipe</h1>
+                        <p>Gerencie os barbeiros da sua barbearia.</p>
                     </div>
                 </div>
                 <div class="card-actions">
                     <a class="ghost-button" href="dashboard.html">Dashboard</a>
-                    <a class="ghost-button" href="agenda.html">Voltar</a>
+                    <a class="ghost-button" href="agenda.html">Agenda</a>
                 </div>
             </header>
 
-            <form id="formCliente" class="form-grid">
+            <form id="formEquipe" class="form-grid">
                 <label class="field">
                     <span>Nome</span>
-                    <input class="input" type="text" id="nome" required>
+                    <input class="input" type="text" id="nomeBarbeiro" required>
                 </label>
                 <label class="field">
-                    <span>Telefone</span>
-                    <input class="input" type="text" id="telefone" required>
+                    <span>Email</span>
+                    <input class="input" type="email" id="emailBarbeiro" required>
                 </label>
                 <label class="field">
-                    <span>Email (opcional)</span>
-                    <input class="input" type="email" id="email">
+                    <span>Senha</span>
+                    <input class="input" type="password" id="senhaBarbeiro" required>
+                </label>
+                <label class="field">
+                    <span>Modelo de repasse</span>
+                    <select class="input" id="modeloRepasse" required>
+                        <option value="ALUGUEL">Aluguel</option>
+                        <option value="COMISSAO">Comissao</option>
+                    </select>
+                </label>
+                <label class="field" id="campoAluguel">
+                    <span>Valor aluguel mensal</span>
+                    <input class="input" type="number" id="valorAluguelMensal" step="0.01" min="0.01">
+                </label>
+                <label class="field is-hidden" id="campoComissao">
+                    <span>Percentual comissao (%)</span>
+                    <input class="input" type="number" id="percentualComissao" step="0.01" min="0.01">
                 </label>
                 <div class="form-actions">
-                    <button class="primary-button" type="submit">Salvar cliente</button>
+                    <button class="primary-button" type="submit">Adicionar barbeiro</button>
                     <button class="ghost-button" type="reset">Limpar</button>
                 </div>
             </form>
@@ -49,11 +64,14 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Telefone</th>
                         <th>Email</th>
+                        <th>Modelo</th>
+                        <th>Repasse</th>
+                        <th>Status</th>
+                        <th>Acoes</th>
                     </tr>
                 </thead>
-                <tbody id="listaClientes"></tbody>
+                <tbody id="listaBarbeiros"></tbody>
             </table>
         </section>
     </main>
@@ -71,6 +89,6 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/menu.js"></script>
-    <script src="../js/clientes.js"></script>
+    <script src="../js/equipe.js"></script>
 </body>
 </html>

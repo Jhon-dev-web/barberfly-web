@@ -6,6 +6,8 @@ const erroEl = document.getElementById("erro");
 const dataEl = document.getElementById("data");
 const carregarEl = document.getElementById("carregar");
 const dataAtualEl = document.getElementById("dataAtual");
+const filtroBarbeiroCampo = document.getElementById("filtroBarbeiroCampo");
+const filtroBarbeiro = document.getElementById("filtroBarbeiro");
 const modalAgendamento = document.getElementById("modalAgendamento");
 const modalConclusao = document.getElementById("modalConclusao");
 const formAgendamento = document.getElementById("formAgendamento");
@@ -33,7 +35,10 @@ const semanaView = document.getElementById("semanaView");
 let modoSemana = false;
 let agendamentosCache = [];
 const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
+const ROLE_ATUAL = usuarioLogado && usuarioLogado.role ? usuarioLogado.role : "";
+const EH_OWNER = String(ROLE_ATUAL || "").toUpperCase() === "OWNER";
 const BARBEIRO_PADRAO = usuarioLogado && usuarioLogado.nome ? usuarioLogado.nome : "Barbeiro";
+let barbeirosCache = [];
 
 function statusClasse(status) {
     if (status === "CONCLUIDO") return "status success";
@@ -99,7 +104,12 @@ async function carregarAgendamentos() {
     vazioEl.style.display = "none";
 
     try {
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/agendamentos?data=${data}`);
+        const params = new URLSearchParams();
+        params.set("data", data);
+        if (EH_OWNER && filtroBarbeiro && filtroBarbeiro.value) {
+            params.set("barbeiroId", filtroBarbeiro.value);
+        }
+        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/agendamentos?${params.toString()}`);
         if (!response.ok) {
             throw new Error("Falha ao carregar agendamentos");
         }
@@ -207,7 +217,13 @@ async function carregarAgendaSemana() {
         fimSemana.setDate(inicioSemana.getDate() + 6);
         const fim = fimSemana.toISOString().substring(0, 10);
 
-        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/agendamentos?inicio=${inicio}&fim=${fim}`);
+        const params = new URLSearchParams();
+        params.set("inicio", inicio);
+        params.set("fim", fim);
+        if (EH_OWNER && filtroBarbeiro && filtroBarbeiro.value) {
+            params.set("barbeiroId", filtroBarbeiro.value);
+        }
+        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/agendamentos?${params.toString()}`);
         if (!response.ok) {
             throw new Error("Falha ao carregar agendamentos");
         }
@@ -220,7 +236,9 @@ async function carregarAgendaSemana() {
 
 async function carregarClientes() {
     try {
-        const clientes = await window.BARBERFLY_AGENDAMENTO.fetchClientes();
+        const clientes = EH_OWNER && filtroBarbeiro && filtroBarbeiro.value
+            ? await window.BARBERFLY_AGENDAMENTO.fetchClientes({ barbeiroId: filtroBarbeiro.value })
+            : await window.BARBERFLY_AGENDAMENTO.fetchClientes();
         popularSelectClientes(Array.isArray(clientes) ? clientes : []);
     } catch (err) {
         clienteSelect.innerHTML = "<option value=''>Sem clientes cadastrados</option>";
@@ -229,7 +247,9 @@ async function carregarClientes() {
 
 async function carregarServicos() {
     try {
-        const servicos = await window.BARBERFLY_AGENDAMENTO.fetchServicos();
+        const servicos = EH_OWNER && filtroBarbeiro && filtroBarbeiro.value
+            ? await window.BARBERFLY_AGENDAMENTO.fetchServicos({ barbeiroId: filtroBarbeiro.value })
+            : await window.BARBERFLY_AGENDAMENTO.fetchServicos();
         popularSelectServicos(Array.isArray(servicos) ? servicos : []);
     } catch (err) {
         servicoSelect.innerHTML = "<option value=''>Sem servicos cadastrados</option>";
@@ -278,6 +298,18 @@ function popularSelectServicos(servicos) {
 }
 
 function atualizarSelectBarbeiros(itens) {
+    if (EH_OWNER) {
+        barbeiroSelect.innerHTML = "<option value=''>Selecione um barbeiro</option>";
+        barbeirosCache.forEach((barbeiro) => {
+            const option = document.createElement("option");
+            option.value = barbeiro.id;
+            option.textContent = barbeiro.nome || "Barbeiro";
+            option.dataset.nome = barbeiro.nome || "Barbeiro";
+            barbeiroSelect.appendChild(option);
+        });
+        return;
+    }
+
     const nomes = new Set();
     nomes.add(BARBEIRO_PADRAO);
     itens.forEach((item) => {
@@ -326,8 +358,20 @@ async function salvarAgendamento(event) {
     erroModal.textContent = "";
     const clienteId = Number(clienteSelect.value) || null;
     const servicoId = Number(servicoSelect.value) || null;
-    const barbeiroSelecionado = String(barbeiroSelect.value || "").trim();
-    const barbeiro = barbeiroSelecionado || BARBEIRO_PADRAO;
+    let barbeiroId = null;
+    let barbeiro = BARBEIRO_PADRAO;
+    if (EH_OWNER) {
+        barbeiroId = Number(barbeiroSelect.value) || null;
+        const selected = barbeiroSelect.options[barbeiroSelect.selectedIndex];
+        barbeiro = selected && selected.dataset.nome ? selected.dataset.nome : "Barbeiro";
+        if (!barbeiroId) {
+            erroModal.textContent = "Selecione um barbeiro.";
+            return;
+        }
+    } else {
+        const barbeiroSelecionado = String(barbeiroSelect.value || "").trim();
+        barbeiro = barbeiroSelecionado || BARBEIRO_PADRAO;
+    }
     const data = document.getElementById("dataForm").value;
     const horaInicio = document.getElementById("horaInicio").value;
     const horaFim = document.getElementById("horaFim").value;
@@ -352,7 +396,7 @@ async function salvarAgendamento(event) {
             dataHoraInicio,
             dataHoraFim,
             observacoes
-        });
+        }, EH_OWNER && barbeiroId ? { barbeiroId } : {});
         fecharFormularioAgendamento();
         await carregarAgendamentos();
         sucessoEl.textContent = "Agendamento criado com sucesso.";
@@ -491,7 +535,10 @@ salvarNovoClienteBtn.addEventListener("click", async () => {
         return;
     }
     try {
-        const cliente = await window.BARBERFLY_AGENDAMENTO.criarCliente({ nome, telefone });
+        const cliente = await window.BARBERFLY_AGENDAMENTO.criarCliente(
+            { nome, telefone },
+            EH_OWNER && filtroBarbeiro && filtroBarbeiro.value ? { barbeiroId: filtroBarbeiro.value } : {}
+        );
         if (cliente && cliente.id) {
             const option = document.createElement("option");
             option.value = cliente.id;
@@ -509,8 +556,54 @@ salvarNovoClienteBtn.addEventListener("click", async () => {
 });
 carregarClientes();
 carregarServicos();
+if (EH_OWNER && filtroBarbeiroCampo) {
+    filtroBarbeiroCampo.classList.remove("is-hidden");
+}
+if (EH_OWNER && filtroBarbeiro) {
+    filtroBarbeiro.addEventListener("change", () => {
+        carregarClientes();
+        carregarServicos();
+        if (modoSemana) {
+            carregarAgendaSemana();
+        } else {
+            carregarAgendamentos();
+        }
+    });
+}
 if (new URLSearchParams(window.location.search).get("view") === "semana") {
     ativarSemana();
 } else {
     ativarDia();
 }
+
+async function carregarBarbeiros() {
+    if (!EH_OWNER) {
+        return;
+    }
+    try {
+        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/equipe/barbeiros`);
+        if (!response.ok) {
+            throw new Error("Falha ao carregar barbeiros");
+        }
+        barbeirosCache = await response.json();
+        popularFiltroBarbeiros();
+        atualizarSelectBarbeiros(agendamentosCache);
+    } catch (err) {
+        barbeirosCache = [];
+    }
+}
+
+function popularFiltroBarbeiros() {
+    if (!filtroBarbeiro) {
+        return;
+    }
+    filtroBarbeiro.innerHTML = "<option value=''>Todos</option>";
+    barbeirosCache.forEach((barbeiro) => {
+        const option = document.createElement("option");
+        option.value = barbeiro.id;
+        option.textContent = barbeiro.nome || "Barbeiro";
+        filtroBarbeiro.appendChild(option);
+    });
+}
+
+carregarBarbeiros();

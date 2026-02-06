@@ -3,6 +3,8 @@ const form = document.getElementById("formCliente");
 const lista = document.getElementById("listaClientes");
 const sucessoEl = document.getElementById("sucesso");
 const erroEl = document.getElementById("erro");
+const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
+const EH_OWNER = usuarioLogado && String(usuarioLogado.role || "").toUpperCase() === "OWNER";
 
 function renderClientes(clientes) {
     lista.innerHTML = "";
@@ -60,5 +62,10 @@ form.addEventListener("submit", async (event) => {
         erroEl.textContent = err && err.message ? err.message : "Nao foi possivel salvar cliente.";
     }
 });
+
+if (EH_OWNER && form) {
+    form.classList.add("is-hidden");
+    sucessoEl.textContent = "Use o filtro da agenda para ver clientes por barbeiro.";
+}
 
 carregarClientes();

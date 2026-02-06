@@ -6,6 +6,9 @@ const totalEl = document.getElementById("total");
 const quantidadeEl = document.getElementById("quantidade");
 const erroEl = document.getElementById("erro");
 const registrarAtendimentoEl = document.getElementById("registrarAtendimento");
+const filtroBarbeiroCampo = document.getElementById("filtroBarbeiroCampo");
+const filtroBarbeiro = document.getElementById("filtroBarbeiro");
+const barbeirosResumoEl = document.getElementById("barbeirosResumo");
 const modalAtendimentoAvulso = document.getElementById("modalAtendimentoAvulso");
 const fecharModalAvulso = document.getElementById("fecharModalAvulso");
 const formAtendimentoAvulso = document.getElementById("formAtendimentoAvulso");
@@ -14,6 +17,8 @@ const valorAvulsoEl = document.getElementById("valorAvulso");
 const clienteAvulsoEl = document.getElementById("clienteAvulso");
 const dataHoraAvulsoEl = document.getElementById("dataHoraAvulso");
 const erroModalAvulsoEl = document.getElementById("erroModalAvulso");
+const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
+const EH_OWNER = usuarioLogado && String(usuarioLogado.role || "").toUpperCase() === "OWNER";
 
 function montarDataHora(data, hora) {
     return `${data}T${hora}`;
@@ -100,6 +105,26 @@ async function carregarResumo() {
     try {
         const inicioParam = encodeURIComponent(inicioDT);
         const fimParam = encodeURIComponent(fimDT);
+        if (EH_OWNER) {
+            const params = new URLSearchParams();
+            params.set("inicio", inicioDT);
+            params.set("fim", fimDT);
+            if (filtroBarbeiro && filtroBarbeiro.value) {
+                params.set("barbeiroId", filtroBarbeiro.value);
+            }
+            const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/financeiro/resumo-barbearia?${params.toString()}`);
+            if (!response.ok) {
+                const mensagem = await response.text();
+                throw new Error(mensagem || "Falha ao carregar resumo");
+            }
+            const data = await response.json();
+            const total = Number(data.totalFaturado || 0).toFixed(2).replace(".", ",");
+            totalEl.textContent = `R$ ${total}`;
+            quantidadeEl.textContent = data.quantidadeAtendimentos || 0;
+            renderResumoBarbeiros(Array.isArray(data.barbeiros) ? data.barbeiros : []);
+            return;
+        }
+
         const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/financeiro/resumo?inicio=${inicioParam}&fim=${fimParam}`);
         if (!response.ok) {
             const mensagem = await response.text();
@@ -109,9 +134,39 @@ async function carregarResumo() {
         const total = Number(data.totalFaturado || 0).toFixed(2).replace(".", ",");
         totalEl.textContent = `R$ ${total}`;
         quantidadeEl.textContent = data.quantidadeAtendimentos || 0;
+        renderResumoBarbeiros([]);
     } catch (err) {
         erroEl.textContent = err && err.message ? err.message : "Nao foi possivel carregar o resumo.";
     }
+}
+
+function renderResumoBarbeiros(barbeiros) {
+    if (!barbeirosResumoEl) {
+        return;
+    }
+    if (!EH_OWNER) {
+        barbeirosResumoEl.innerHTML = "";
+        barbeirosResumoEl.classList.add("is-hidden");
+        return;
+    }
+    barbeirosResumoEl.classList.remove("is-hidden");
+    barbeirosResumoEl.innerHTML = "";
+    if (!barbeiros.length) {
+        barbeirosResumoEl.innerHTML = "<p class='empty-state'>Sem dados por barbeiro.</p>";
+        return;
+    }
+    barbeiros.forEach((barbeiro) => {
+        const total = Number(barbeiro.totalFaturado || 0).toFixed(2).replace(".", ",");
+        const repasse = Number(barbeiro.repasse || 0).toFixed(2).replace(".", ",");
+        const card = document.createElement("div");
+        card.className = "summary-card";
+        card.innerHTML = `
+            <span>${barbeiro.nome || "Barbeiro"}</span>
+            <strong>R$ ${total}</strong>
+            <small>Atendimentos: ${barbeiro.quantidadeAtendimentos || 0} • Repasse: R$ ${repasse}</small>
+        `;
+        barbeirosResumoEl.appendChild(card);
+    });
 }
 
 inicioEl.value = getTodayIsoDate();
@@ -119,9 +174,21 @@ fimEl.value = getTodayIsoDate();
 carregarEl.addEventListener("click", carregarResumo);
 carregarResumo();
 
-if (registrarAtendimentoEl) {
+if (EH_OWNER) {
+    if (filtroBarbeiroCampo) {
+        filtroBarbeiroCampo.classList.remove("is-hidden");
+    }
+    if (registrarAtendimentoEl) {
+        registrarAtendimentoEl.classList.add("is-hidden");
+    }
+    if (filtroBarbeiro) {
+        filtroBarbeiro.addEventListener("change", carregarResumo);
+    }
+    carregarBarbeiros();
+} else if (registrarAtendimentoEl) {
     registrarAtendimentoEl.addEventListener("click", abrirModalAvulso);
 }
+
 if (fecharModalAvulso) {
     fecharModalAvulso.addEventListener("click", fecharModalAvulsoCard);
 }
@@ -177,4 +244,26 @@ if (formAtendimentoAvulso) {
             erroModalAvulsoEl.textContent = err && err.message ? err.message : "Nao foi possivel registrar.";
         }
     });
+}
+
+async function carregarBarbeiros() {
+    if (!EH_OWNER || !filtroBarbeiro) {
+        return;
+    }
+    try {
+        const response = await window.BARBERFLY_AUTH.fetch(`${API_URL}/equipe/barbeiros`);
+        if (!response.ok) {
+            throw new Error("Falha ao carregar barbeiros");
+        }
+        const data = await response.json();
+        filtroBarbeiro.innerHTML = "<option value=''>Todos</option>";
+        (Array.isArray(data) ? data : []).forEach((barbeiro) => {
+            const option = document.createElement("option");
+            option.value = barbeiro.id;
+            option.textContent = barbeiro.nome || "Barbeiro";
+            filtroBarbeiro.appendChild(option);
+        });
+    } catch (err) {
+        filtroBarbeiro.innerHTML = "<option value=''>Todos</option>";
+    }
 }

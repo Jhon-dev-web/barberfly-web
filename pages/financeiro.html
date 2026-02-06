@@ -32,6 +32,12 @@
                     <span>Fim</span>
                     <input class="input" type="date" id="fim">
                 </label>
+                <label class="field is-hidden" id="filtroBarbeiroCampo">
+                    <span>Barbeiro</span>
+                    <select class="input" id="filtroBarbeiro">
+                        <option value="">Todos</option>
+                    </select>
+                </label>
                 <button class="primary-button" id="carregar">Carregar</button>
                 <button class="ghost-button" type="button" id="registrarAtendimento">+ Registrar atendimento</button>
             </div>
@@ -46,6 +52,8 @@
                     <strong id="quantidade">0</strong>
                 </div>
             </div>
+
+            <div id="barbeirosResumo" class="summary"></div>
 
             <p id="erro" class="error-state"></p>
         </section>
@@ -95,6 +103,7 @@
         <a href="clientes.html">Clientes</a>
         <a href="servicos.html">Servicos</a>
         <a href="financeiro.html">Financeiro</a>
+        <a href="equipe.html" data-owner-only class="is-hidden">Equipe</a>
     </nav>
     <div class="menu-overlay" id="menuOverlay"></div>
 

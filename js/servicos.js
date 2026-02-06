@@ -8,6 +8,8 @@ const formServicoEdicao = document.getElementById("formServicoEdicao");
 const erroModal = document.getElementById("erroModal");
 const fecharModalBtn = document.getElementById("fecharModal");
 let servicosCache = [];
+const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
+const EH_OWNER = usuarioLogado && String(usuarioLogado.role || "").toUpperCase() === "OWNER";
 
 function renderServicos(servicos) {
     lista.innerHTML = "";
@@ -16,29 +18,39 @@ function renderServicos(servicos) {
         const tr = document.createElement("tr");
         const preco = servico.preco ? Number(servico.preco).toFixed(2).replace(".", ",") : "0,00";
         const status = servico.ativo ? "Ativo" : "Inativo";
-        tr.innerHTML = `
-            <td>${servico.nome || "-"}</td>
-            <td>${servico.duracaoMin || "-" } min</td>
-            <td>R$ ${preco}</td>
-            <td>${status}</td>
-            <td>
-                <button class="ghost-button small-button" type="button" data-acao="editar">Editar</button>
-                <button class="ghost-button small-button" type="button" data-acao="toggle">
-                    ${servico.ativo ? "Desativar" : "Ativar"}
-                </button>
-            </td>
-        `;
-        const botoes = tr.querySelectorAll("button[data-acao]");
-        botoes.forEach((botao) => {
-            const acao = botao.getAttribute("data-acao");
-            botao.addEventListener("click", () => {
-                if (acao === "editar") {
-                    abrirEdicao(servico);
-                } else {
-                    alternarStatus(servico);
-                }
+        if (EH_OWNER) {
+            tr.innerHTML = `
+                <td>${servico.nome || "-"}</td>
+                <td>${servico.duracaoMin || "-" } min</td>
+                <td>R$ ${preco}</td>
+                <td>${status}</td>
+                <td>-</td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td>${servico.nome || "-"}</td>
+                <td>${servico.duracaoMin || "-" } min</td>
+                <td>R$ ${preco}</td>
+                <td>${status}</td>
+                <td>
+                    <button class="ghost-button small-button" type="button" data-acao="editar">Editar</button>
+                    <button class="ghost-button small-button" type="button" data-acao="toggle">
+                        ${servico.ativo ? "Desativar" : "Ativar"}
+                    </button>
+                </td>
+            `;
+            const botoes = tr.querySelectorAll("button[data-acao]");
+            botoes.forEach((botao) => {
+                const acao = botao.getAttribute("data-acao");
+                botao.addEventListener("click", () => {
+                    if (acao === "editar") {
+                        abrirEdicao(servico);
+                    } else {
+                        alternarStatus(servico);
+                    }
+                });
             });
-        });
+        }
         lista.appendChild(tr);
     });
 }
@@ -151,4 +163,8 @@ formServicoEdicao.addEventListener("submit", async (event) => {
 });
 
 fecharModalBtn.addEventListener("click", fecharEdicao);
+if (EH_OWNER && form) {
+    form.classList.add("is-hidden");
+    sucessoEl.textContent = "Servicos sao gerenciados por barbeiro.";
+}
 carregarServicos();

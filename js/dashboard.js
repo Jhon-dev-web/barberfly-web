@@ -42,8 +42,10 @@ const observacoesDashboard = document.getElementById("observacoesDashboard");
 /* Identidade do usuario */
 const usuarioLogado = window.BARBERFLY_AUTH ? window.BARBERFLY_AUTH.getUser() : null;
 const PLANO_ATUAL = usuarioLogado && usuarioLogado.tipo ? usuarioLogado.tipo : "INDIVIDUAL";
+const ROLE_ATUAL = usuarioLogado && usuarioLogado.role ? usuarioLogado.role : "";
+const EH_OWNER = String(ROLE_ATUAL || "").toUpperCase() === "OWNER";
 const NOME_BARBEIRO = usuarioLogado && usuarioLogado.nome ? usuarioLogado.nome : "Barbeiro";
-const NOME_BARBEARIA = "";
+const NOME_BARBEARIA = usuarioLogado && usuarioLogado.empresaNome ? usuarioLogado.empresaNome : "";
 const BARBEIRO_PADRAO = usuarioLogado && usuarioLogado.nome ? usuarioLogado.nome : "Barbeiro";
 
 function aplicarPlano() {
@@ -51,12 +53,21 @@ function aplicarPlano() {
     const planoIndividual = plano === "INDIVIDUAL";
 
     if (navEquipeEl) {
-        navEquipeEl.classList.toggle("is-hidden", planoIndividual);
+        navEquipeEl.classList.toggle("is-hidden", !EH_OWNER);
     }
 
     if (planoIndividual) {
         nomeBarbeariaEl.textContent = "";
         nomeBarbeariaEl.classList.add("is-hidden");
+    }
+
+    if (EH_OWNER) {
+        if (novoAgendamentoDashboardEl) {
+            novoAgendamentoDashboardEl.classList.add("is-hidden");
+        }
+        if (novoAgendamentoAgendaEl) {
+            novoAgendamentoAgendaEl.classList.add("is-hidden");
+        }
     }
 }
 

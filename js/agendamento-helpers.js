@@ -8,18 +8,27 @@ async function handleJsonResponse(response, fallbackMessage) {
     return response.json();
 }
 
-async function fetchClientes() {
-    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/clientes`);
+function buildQueryString(options) {
+    const params = new URLSearchParams();
+    if (options && options.barbeiroId) {
+        params.set("barbeiroId", options.barbeiroId);
+    }
+    const query = params.toString();
+    return query ? `?${query}` : "";
+}
+
+async function fetchClientes(options = {}) {
+    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/clientes${buildQueryString(options)}`);
     return handleJsonResponse(response, "Falha ao carregar clientes");
 }
 
-async function fetchServicos() {
-    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/servicos`);
+async function fetchServicos(options = {}) {
+    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/servicos${buildQueryString(options)}`);
     return handleJsonResponse(response, "Falha ao carregar servicos");
 }
 
-async function criarCliente(payload) {
-    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/clientes`, {
+async function criarCliente(payload, options = {}) {
+    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/clientes${buildQueryString(options)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -27,8 +36,8 @@ async function criarCliente(payload) {
     return handleJsonResponse(response, "Falha ao criar cliente");
 }
 
-async function criarAgendamento(payload) {
-    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/agendamentos`, {
+async function criarAgendamento(payload, options = {}) {
+    const response = await window.BARBERFLY_AUTH.fetch(`${API_BASE_URL}/agendamentos${buildQueryString(options)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
